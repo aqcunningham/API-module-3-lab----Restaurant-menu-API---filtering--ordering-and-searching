@@ -1,0 +1,113 @@
+Created based on a lab from Meta course Meta Back-End Developer Professional Certificate from Coursera.
+
+Course APIs.
+module 3.
+
+Goal:   Adding functionalities such as pagination, ordering and searching in HTML form using DRF.
+
+Objectives
+Create HTML forms and add new items
+Add pagination settings for DRF form
+Add filtering options such as ordering and searching
+
+1. Install all dependencies.
+    pipenv install django
+    pipenv shell
+    pipenv install
+    pipenv install djangorestframework
+    django-admin startproject littlelemon .
+    django-admin startapp littlelemonAPI
+    pipenv install django-filter
+
+2. Add 'rest_framework', 'littlelemonAPI' to settings.
+
+3. Inside REST_FRAMEWORK in settings:
+    'DEFAULT_FILTER_BACKENDS': [
+        'rest_framework.filters.OrderingFilter',
+        'rest_framework.filters.SearchFilter',
+    ],
+    //Allows to filter asc, desc & searching
+
+4. Add pagination in REST_FRAMEWORK:
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 3
+    //Allows for results to display 3 per page
+
+5. Create Category model, MenuItem model and connect with foreign key.
+    python3 manage.py makemigrations
+    python3 manage.py migrate
+
+6. Create serializers: class CategorySerializer, class MenuItemSerializer.
+
+7. Views:   CategoryView serialize for viewing all categories;
+            SingleCategoryView serializer for viewing, editing every category;
+            MenuItemsView to view, create menu items;
+            SingleItemView to view every menu item by id;
+8. Urls:            
+        path('category/', views.CategoryView.as_view()),
+        path('category/<int:pk>', views.SingleCategoryView.as_view()),
+        path('menu-items/', views.MenuItemsView.as_view()),
+        path('menu-items/<int:pk>', views.SingleItemView.as_view()),
+
+Final functionality:
+
+
+http://127.0.0.1:8000/api/menu-items/           # to view, add, edit menu items
+# top right corner has filter button that has:   
+                                                # filter by price 
+                                                # filter by inventory 
+                                                # price ascending
+                                                # price descending
+                                                # inventory ascending
+                                                # inventory descending
+                                                # search field
+
+http://127.0.0.1:8000/api/menu-items/id         # single menu item page to view and edit, delete
+http://127.0.0.1:8000/api/category/             # to view, add category
+http://127.0.0.1:8000/api/category/id           # single category item page to view and edit, delete
+
+
+
+Issue encountered during this project:
+http://127.0.0.1:8000/api/menu-items/ not loading with an error:
+    Request Method:	GET
+    Request URL:	http://127.0.0.1:8000/api/menu-items/
+    Django Version:	5.0.7
+    Exception Type:	TemplateDoesNotExist
+    Exception Value:	
+    django_filters/rest_framework/form.html
+
+While indididual http://127.0.0.1:8000/api/menu-items/3 works
+
+solution.
+Include  'django_filters' in INSTALLED_APPS
+___
+Issuse encountered from earlier stage:
+After coding along, at the relationship serializer part, added a new relational Category model. There is already some data in  MenuItem folder from earlier videos.
+New model data doesnt work with existing data, giving  primary key '1' has an invalid foreign key. category_id contains a value '1' that does not have a corresponding value in littlelemonAPI_category.id.
+I deleted all data and tried adding a new rows of data, after migrating empty forms - also error.
+
+solution 1.
+To access data in django:
+python manage.py dbshell
+.tables
+.schema littlelemonAPI_category
+insert into littlelemonAPI_category(id, slug, title) values (1, "icecream", "vanleeuwen");
+or
+UPDATE littlelemonAPI_category SET slug = "newslug", title = "newtitle" WHERE id = 1;
+.quit
+
+solution 2.
+1. create a separate view for category.
+2. create a separate view for each category item based on id.
+3. write a path to each category and category item to be able to view, edit.
+4. after running the server, access category:
+    http://127.0.0.1:8000/api/category/     //to create a new category
+    http://127.0.0.1:8000/api/category/id   //to update existing category
+
+----
+
+
+
+
+
